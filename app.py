@@ -24,7 +24,7 @@ text_splitter = CharacterTextSplitter(separator='\n', chunk_size=1000, chunk_ove
 documents = text_splitter.split_documents(raw_documents)
 db_books = Chroma.from_documents(documents, OpenAIEmbeddings())
 
-print(documents[0].page_content)
+# print(documents[0].page_content)
 
 def retrieve_semantic_recommendations(
     query: str, 
