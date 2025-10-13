@@ -77,7 +77,7 @@ def recommend_books(
         else:
             authors_str = row['authors']
         
-        caption = f'{row['title']} by {authors_str}: {truncated_desc}'
+        caption = f"{row['title']} by {authors_str}: {truncated_desc}"
         results.append((row['large_thumbnail'], caption))
         
     return results
