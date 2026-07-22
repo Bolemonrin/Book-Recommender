@@ -50,3 +50,4 @@ desktop.ini
 # uv.lock          : commit it, it pins your local CUDA resolution
 # requirements.txt : the Space installs from this file
 chroma_db/       : the prebuilt index the Space reads at startup
+chroma_db/
