@@ -26,8 +26,9 @@ with open('tagged_desc.txt', encoding='utf-8') as f:
 
 text_splitter = CharacterTextSplitter(separator='\n', chunk_size=1000, chunk_overlap=0)
 documents = text_splitter.split_documents(raw_documents)
+
 embeddings = HuggingFaceEmbeddings(
-    model_name="Qwen/Qwen3-Embedding-0.6b",
+    model_name="Qwen/Qwen3-Embedding-0.6B",
     encode_kwargs={"normalize_embeddings": True},
 )
 db_books = Chroma.from_documents(
@@ -36,6 +37,10 @@ db_books = Chroma.from_documents(
     persist_directory="chroma_db",
 )
 
+# db = Chroma(
+#     persist_directory="chroma_db",
+#     embedding_function=embeddings
+# )
 
 # print(documents[0].page_content)
 

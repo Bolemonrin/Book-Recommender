@@ -2,7 +2,7 @@
 name = "book-recommender"
 version = "0.1.0"
 description = "Semantic book recommender"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.13"
 
 dependencies = [
     "gradio==5.49.1",
