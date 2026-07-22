@@ -29,7 +29,6 @@ documents = text_splitter.split_documents(raw_documents)
 embeddings = HuggingFaceEmbeddings(
     model_name="BAAI/bge-small-en-v1.5",
     encode_kwargs={"normalize_embeddings": True},
-    query_instruction="Represent this sentence for searching relevant passages: ",
 )
 
 db_books = Chroma.from_documents(
