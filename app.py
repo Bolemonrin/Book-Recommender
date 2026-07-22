@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 from langchain_community.document_loaders import TextLoader
 from langchain_openai import OpenAIEmbeddings
+from langchain_ollama import OllamaEmbeddings
 from langchain_text_splitters import CharacterTextSplitter
 from langchain_chroma import Chroma
 
@@ -22,27 +23,31 @@ books['large_thumbnail'] = np.where(
 raw_documents = TextLoader('tagged_desc.txt', encoding='utf-8').load()
 text_splitter = CharacterTextSplitter(separator='\n', chunk_size=1000, chunk_overlap=0)
 documents = text_splitter.split_documents(raw_documents)
-db_books = Chroma.from_documents(documents, OpenAIEmbeddings())
+embeddings = OllamaEmbeddings(
+    model="qwen3-embedding:4b"
+)
+db_books = Chroma.from_documents(documents, embedding=embeddings)
+
 
 # print(documents[0].page_content)
 
 def retrieve_semantic_recommendations(
-    query: str, 
-    category: str = None, 
-    tone: str = None, 
-    initial_top_k: int = 50, 
+    query: str,
+    category: str = None,
+    tone: str = None,
+    initial_top_k: int = 50,
     final_top_k: int = 16
     ) -> pd.DataFrame:
-    
+
     recs = db_books.similarity_search(query, k=initial_top_k)
     books_list = [int(rec.page_content.strip('"').split()[0]) for rec in recs]
     books_recs = books[books['isbn13'].isin(books_list)].head(initial_top_k)
-    
+
     if category != 'All':
         books_recs = books_recs[books_recs['simple_category'] == category].head(final_top_k)
     else:
         books_recs = books_recs.head(final_top_k)
-        
+
     if tone == 'Happy':
         books_recs.sort_values(by='joy', ascending=False, inplace=True)
     elif tone == 'Surprising':
@@ -53,7 +58,7 @@ def retrieve_semantic_recommendations(
         books_recs.sort_values(by='fear', ascending=False, inplace=True)
     elif tone == 'Sad':
         books_recs.sort_values(by='sadness', ascending=False, inplace=True)
-    
+
     return books_recs
 
 
@@ -62,15 +67,15 @@ def recommend_books(
     category: str,
     tone: str
 ):
-    
+
     recommendations = retrieve_semantic_recommendations(query, category, tone)
     results = []
-    
+
     for _, row in recommendations.iterrows():
         description = row['description']
         truncated_desc_split = description.split()
         truncated_desc = ''.join(truncated_desc_split[:30]) + '...'
-        
+
         authors_split = row['authors'].split(';')
         if len(authors_split) == 2:
             authors_str = f"{authors_split[0]} & {authors_split[1]}"
@@ -78,10 +83,10 @@ def recommend_books(
             authors_str = f"{', '.join(authors_split[:1])}, and {authors_split[-1]}"
         else:
             authors_str = row['authors']
-        
+
         caption = f"{row['title']} by {authors_str}: {truncated_desc}"
         results.append((row['large_thumbnail'], caption))
-        
+
     return results
 
 
@@ -91,7 +96,7 @@ tones = ['All'] + ['Happy', 'Surprising', 'Angry', 'Suspenseful', 'Sad']
 
 with gr.Blocks(theme = gr.themes.Glass()) as dashboard:
     gr.Markdown('# Semantic book recommender')
-    
+
     with gr.Row():
         user_query = gr.Textbox(label = "Please enter a description of a book:",
                                 placeholder = "e.g., A story about forgiveness")
