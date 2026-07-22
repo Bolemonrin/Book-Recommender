@@ -1,17 +1,54 @@
 [project]
 name = "book-recommender"
 version = "0.1.0"
-requires-python = ">=3.14"
+description = "Semantic book recommender"
+requires-python = ">=3.10"
+
 dependencies = [
-    "chromadb>=1.5.9",
-    "gradio>=6.20.0",
-    "langchain>=1.3.14",
-    "langchain-chroma>=1.1.0",
-    "langchain-community>=0.4.2",
-    "langchain-ollama>=1.1.0",
-    "langchain-openai>=1.4.0",
-    "numpy>=2.5.1",
-    "openai>=2.46.0",
-    "pandas>=3.0.3",
+    "gradio",
+    "pandas",
+    "numpy>=2.2.6",
     "python-dotenv>=1.2.2",
+    "sentence-transformers>=3.0",
+    "langchain>=1.3.14",
+    "langchain-core",
+    "langchain-huggingface",
+    "langchain-text-splitters",
+    "langchain-chroma",
+    "chromadb>=1.5.9",
+]
+
+# Torch lives in groups, not extras. Groups can be defaulted; extras cannot.
+[dependency-groups]
+cpu = ["torch>=2.5.0"]
+cu132 = ["torch>=2.5.0"]
+
+[tool.uv]
+package = false
+
+# This line is the fix: every uv add / uv run / uv sync now resolves
+# the CUDA build with no flag. Nothing reverts torch to +cpu anymore.
+default-groups = ["cu132"]
+
+# Never resolve both torch builds into the same lock.
+conflicts = [
+    [{ group = "cpu" }, { group = "cu132" }],
+]
+
+# explicit = true means these indexes serve ONLY the packages routed to
+# them below. Everything else still resolves from PyPI.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu132"
+url = "https://download.pytorch.org/whl/cu132"
+explicit = true
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", group = "cpu" },
+    { index = "pytorch-cu132", group = "cu132" },
 ]

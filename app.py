@@ -3,9 +3,8 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 
-from langchain_community.document_loaders import TextLoader
-from langchain_openai import OpenAIEmbeddings
-from langchain_ollama import OllamaEmbeddings
+from langchain_core.documents import Document
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import CharacterTextSplitter
 from langchain_chroma import Chroma
 
@@ -20,13 +19,22 @@ books['large_thumbnail'] = np.where(
     books['large_thumbnail']
 )
 
-raw_documents = TextLoader('tagged_desc.txt', encoding='utf-8').load()
+with open('tagged_desc.txt', encoding='utf-8') as f:
+    raw_documents = [
+        Document(page_content=line.strip()) for line in f if line.strip()
+    ]
+
 text_splitter = CharacterTextSplitter(separator='\n', chunk_size=1000, chunk_overlap=0)
 documents = text_splitter.split_documents(raw_documents)
-embeddings = OllamaEmbeddings(
-    model="qwen3-embedding:4b"
+embeddings = HuggingFaceEmbeddings(
+    model_name="Qwen/Qwen3-Embedding-0.6b",
+    encode_kwargs={"normalize_embeddings": True},
 )
-db_books = Chroma.from_documents(documents, embedding=embeddings)
+db_books = Chroma.from_documents(
+    documents,
+    embedding=embeddings,
+    persist_directory="chroma_db",
+)
 
 
 # print(documents[0].page_content)

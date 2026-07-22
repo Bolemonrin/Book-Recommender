@@ -1,7 +1,52 @@
-myenv
+# ---- Secrets ----
 .env
-.vscode
-.idea
-__pycache__
-*.
-.venv
+.env.*
+!.env.example
+*.key
+credentials.json
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+myenv/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# ---- Notebooks ----
+.ipynb_checkpoints/
+
+# ---- Caches ----
+.cache/
+hf_cache/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# ---- Gradio ----
+.gradio/
+flagged/
+
+# ---- Editors ----
+.vscode/
+.idea/
+*.swp
+
+# ---- OS ----
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ---- Deliberately NOT ignored ----
+# uv.lock          : commit it, it pins your local CUDA resolution
+# requirements.txt : the Space installs from this file
+# chroma_db/       : the prebuilt index the Space reads at startup
