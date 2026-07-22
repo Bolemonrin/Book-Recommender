@@ -33,7 +33,7 @@ embeddings = HuggingFaceEmbeddings(
 
 db_books = Chroma.from_documents(
     documents,
-    embedding_function=embeddings
+    embedding=embeddings
 )
 
 # print(documents[0].page_content)
