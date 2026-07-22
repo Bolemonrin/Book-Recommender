@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import os
 from dotenv import load_dotenv
 
 from langchain_core.documents import Document
@@ -28,19 +27,15 @@ text_splitter = CharacterTextSplitter(separator='\n', chunk_size=1000, chunk_ove
 documents = text_splitter.split_documents(raw_documents)
 
 embeddings = HuggingFaceEmbeddings(
-    model_name="Qwen/Qwen3-Embedding-0.6B",
+    model_name="BAAI/bge-small-en-v1.5",
     encode_kwargs={"normalize_embeddings": True},
-)
-db_books = Chroma.from_documents(
-    documents,
-    embedding=embeddings,
-    persist_directory="chroma_db",
+    query_instruction="Represent this sentence for searching relevant passages: ",
 )
 
-# db = Chroma(
-#     persist_directory="chroma_db",
-#     embedding_function=embeddings
-# )
+db_books = Chroma.from_documents(
+    documents,
+    embedding_function=embeddings
+)
 
 # print(documents[0].page_content)
 
@@ -62,15 +57,15 @@ def retrieve_semantic_recommendations(
         books_recs = books_recs.head(final_top_k)
 
     if tone == 'Happy':
-        books_recs.sort_values(by='joy', ascending=False, inplace=True)
+        books_recs = books_recs.sort_values(by='joy', ascending=False)
     elif tone == 'Surprising':
-        books_recs.sort_values(by='surprise', ascending=False, inplace=True)
+        books_recs =books_recs.sort_values(by='surprise', ascending=False)
     elif tone == 'Angry':
-        books_recs.sort_values(by='anger', ascending=False, inplace=True)
+        books_recs =books_recs.sort_values(by='anger', ascending=False)
     elif tone == 'Suspenseful':
-        books_recs.sort_values(by='fear', ascending=False, inplace=True)
+        books_recs = books_recs.sort_values(by='fear', ascending=False)
     elif tone == 'Sad':
-        books_recs.sort_values(by='sadness', ascending=False, inplace=True)
+        books_recs =books_recs.sort_values(by='sadness', ascending=False)
 
     return books_recs
 
@@ -87,7 +82,7 @@ def recommend_books(
     for _, row in recommendations.iterrows():
         description = row['description']
         truncated_desc_split = description.split()
-        truncated_desc = ''.join(truncated_desc_split[:30]) + '...'
+        truncated_desc = ' '.join(truncated_desc_split[:30]) + '...'
 
         authors_split = row['authors'].split(';')
         if len(authors_split) == 2:
