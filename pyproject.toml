@@ -20,7 +20,7 @@ dependencies = [
 
 # Torch lives in groups, not extras. Groups can be defaulted; extras cannot.
 [dependency-groups]
-cpu = ["torch>=2.5.0"]
+cpu = ["torch>=2.5.0,<2.13"]
 cu132 = ["torch>=2.5.0"]
 
 [tool.uv]
